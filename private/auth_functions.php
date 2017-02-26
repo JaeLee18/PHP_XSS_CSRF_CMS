@@ -11,6 +11,8 @@
   // A one-step function to destroy the current session
   function destroy_current_session() {
     unset($_SESSION);
+    session_unset();
+    session_destroy();
     return true;
   }
 
