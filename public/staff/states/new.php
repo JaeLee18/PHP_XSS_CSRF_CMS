@@ -45,6 +45,7 @@ if(is_post_request()) {
     Code:<br />
     <input type="text" name="code" value="<?php echo h($state['code']); ?>" /><br />
     <br />
+    <?php csrf_token_tag();?>
     <input type="submit" name="submit" value="Create"  />
   </form>
 
