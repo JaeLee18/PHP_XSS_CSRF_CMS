@@ -18,7 +18,10 @@ if(is_post_request()) {
   if(isset($_POST['name'])) { $state['name'] = $_POST['name']; }
   if(isset($_POST['code'])) { $state['code'] = $_POST['code']; }
   if(isset($_POST['country_id'])) { $state['country_id'] = $_POST['country_id']; }
-
+  if (csrf_token_is_valid() === False){
+    $errors[] = "Error: invalid request";
+    redirect_to('../index.php');
+  }
   $result = update_state($state);
   if($result === true) {
     redirect_to('show.php?id=' . $state['id']);
@@ -35,7 +38,9 @@ if(is_post_request()) {
 
   <h1>Edit State: <?php echo h($state['name']); ?></h1>
 
-  <?php echo display_errors($errors); ?>
+  <?php echo display_errors($errors);
+  $_SESSION['csrf_token']=csrf_token();
+  ?>
 
   <form action="edit.php?id=<?php echo h(u($state['id'])); ?>" method="post">
     Name:<br />
@@ -45,6 +50,13 @@ if(is_post_request()) {
     Country ID:<br />
     <input type="text" name="country_id" value="<?php echo h($state['country_id']); ?>" /><br />
     <br />
+    <?php
+    $myToken = csrf_token();
+    $_SESSION['csrf_token'] = $myToken;
+    //csrf_token_tag($myToken);
+    ?>
+    <?php csrf_token_tag($_SESSION['csrf_token']);?>
+    <input type="text" name="csrf_token" value= "<?php echo $myToken; ?>" >
     <input type="submit" name="submit" value="Update"  />
   </form>
 

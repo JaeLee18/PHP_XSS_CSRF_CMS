@@ -15,18 +15,24 @@ $state = array(
 );
 
 if(is_post_request()) {
-
   // Confirm that values are present before accessing them.
   if(isset($_POST['name'])) { $state['name'] = $_POST['name']; }
   if(isset($_POST['code'])) { $state['code'] = $_POST['code']; }
 
-  $result = insert_state($state);
-  if($result === true) {
-    $new_id = db_insert_id($db);
-    redirect_to('show.php?id=' . $new_id);
-  } else {
-    $errors = $result;
+  if (csrf_token_is_valid() === False){
+    $errors[] = "Error: invalid request";
+    redirect_to('../index.php');
   }
+  else{
+    $result = insert_state($state);
+    if($result === true) {
+      $new_id = db_insert_id($db);
+      redirect_to('show.php?id=' . $new_id);
+    } else {
+      $errors = $result;
+    }
+  }
+
 }
 ?>
 <?php $page_title = 'Staff: New State'; ?>
@@ -37,7 +43,7 @@ if(is_post_request()) {
 
   <h1>New State</h1>
 
-  <?php echo display_errors($errors); ?>
+  <?php echo display_errors($errors);?>
 
   <form action="new.php?id=<?php echo h($state['country_id']); ?>" method="post">
     Name:<br />
@@ -45,7 +51,12 @@ if(is_post_request()) {
     Code:<br />
     <input type="text" name="code" value="<?php echo h($state['code']); ?>" /><br />
     <br />
-    <?php csrf_token_tag();?>
+    <?php
+    $myToken = csrf_token();
+    $_SESSION['csrf_token'] = $myToken;
+    //csrf_token_tag($myToken);
+    ?>
+    <input type="hidden" name="csrf_token" value= "<?php echo $_SESSION['csrf_token']; ?>" >
     <input type="submit" name="submit" value="Create"  />
   </form>
 
